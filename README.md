@@ -6,6 +6,23 @@ This driver uses the platform-agnostics [`embedded-hal`] traits.
 
 All registers are defined in [`src/registers.rs`](src/registers.rs), but only a fraction of functionality is currently conveniently exposed. I'm happy to accept PRs to extend this.
 
+## Example
+
+```rust
+use bq24196::{BQ24196, InputCurrentLimit};
+
+// Initialize bs24196 on a given i2c bus.
+// This checks part number register to verify device.
+let mut battery = BQ24196::new(i2c).expect("Failed to initialize bq24196");
+
+// Set input current limit in REG00::IINLIM
+battery.set_input_current_limit(InputCurrentLimit::IINLIM_1500mA).unwrap();
+
+if battery.has_fault().unwrap() {
+  println!("Battery has active faults!");
+}
+```
+
 ## License
 
 Licensed under either of
