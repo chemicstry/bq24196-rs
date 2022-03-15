@@ -4,6 +4,8 @@ bq24196: I2C Controlled 2.5-A Single Cell USB/Adapter Charger with Narrow VDC Po
 
 This driver uses the platform-agnostics [`embedded-hal`] traits.
 
+All registers are defined in [`src/registers.rs`](src/registers.rs), but only a fraction of functionality is currently conveniently exposed. I'm happy to accept PRs to extend this.
+
 ## License
 
 Licensed under either of
