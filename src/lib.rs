@@ -19,7 +19,7 @@ pub enum Error<E> {
     /// I2C bus error
     Bus(E),
     /// Device P/N did not match during initialization
-    UnknownDevice(u8),
+    UnknownDevice,
 }
 
 pub struct BQ24196<I2C> {
@@ -35,7 +35,7 @@ where
 
         let pn = dev.read_reg()?.read(registers::REG0A::PN);
         if pn != registers::REG0A::PN::Value::DEFAULT_PN as _ {
-            return Err(Error::UnknownDevice(pn));
+            return Err(Error::UnknownDevice);
         }
 
         Ok(dev)
