@@ -13,3 +13,4 @@ edition = "2021"
 
 [dependencies]
 embedded-hal = "0.2"
+tock-registers = { version = "0.7", default-features = false }
