@@ -2,6 +2,9 @@
 #![doc = include_str!("../README.md")]
 
 mod registers;
+pub mod types;
+
+use types::*;
 
 use embedded_hal::blocking::i2c::{Write, WriteRead};
 use registers::I2cRegister;
@@ -9,17 +12,14 @@ use tock_registers::LocalRegisterCopy;
 
 const DEVICE_ADDR: u8 = 0x6B;
 
-pub use registers::{
-    REG00::{IINLIM::Value as InputCurrentLimit, VINDPM::Value as InputVoltageLimit},
-    REG08::{CHRG_STAT::Value as ChargerStatus, VBUS_STAT::Value as VBusStatus},
-};
-
 #[derive(Debug)]
 pub enum Error<E> {
     /// I2C bus error
     Bus(E),
     /// Device P/N did not match during initialization
     UnknownDevice,
+    /// Register parsing failed
+    ParserError,
 }
 
 pub struct BQ24196<I2C> {
@@ -91,9 +91,26 @@ where
             .unwrap())
     }
 
+    pub fn set_watchdog_timer(&mut self, timer: WatchdogTimer) -> Result<(), Error<E>> {
+        self.modify_reg(|reg| {
+            reg.modify(registers::REG05::WATCHDOG.val(timer as _));
+        })
+    }
+
+    pub fn reset_watchdog_timer(&mut self) -> Result<(), Error<E>> {
+        self.modify_reg(|reg| {
+            reg.modify(registers::REG01::WatchdogReset.val(1));
+        })
+    }
+
     /// True if any of the faults are active
     pub fn has_fault(&mut self) -> Result<bool, Error<E>> {
         Ok(self.read_reg::<registers::REG09::Register>()?.get() != 0)
+    }
+
+    pub fn get_faults(&mut self) -> Result<Faults, Error<E>> {
+        let reg = self.read_reg::<registers::REG09::Register>()?;
+        Ok(Faults::try_from(reg).map_err(|_| Error::ParserError)?)
     }
 
     #[inline]

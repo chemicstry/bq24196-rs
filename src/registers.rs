@@ -224,7 +224,10 @@ register_bitfields! [
             ThermalShutdown = 0b10,
             SafetyTimer = 0b11,
         ],
-        BAT_FAULT OFFSET(3) NUMBITS(1) [],
+        BAT_FAULT OFFSET(3) NUMBITS(1) [
+            Normal = 0,
+            Overvoltage =1,
+        ],
         NTC_FAULT OFFSET(0) NUMBITS(3) [
             Normal = 0b000,
             Cold = 0b101,
